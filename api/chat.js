@@ -4,6 +4,9 @@ const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
+// ─────────────────────────────────────────────
+//  EIGEN DOCUMENTEN — voeg hier je teksten toe
+// ─────────────────────────────────────────────
 const EIGEN_DOCUMENTEN = `
 Hier kun je eigen Fluqsus-documentatie toevoegen.
 Bijvoorbeeld: procedures, klantspecifieke instellingen, FAQ's.
@@ -11,31 +14,36 @@ Bijvoorbeeld: procedures, klantspecifieke instellingen, FAQ's.
 
 module.exports = async function handler(req, res) {
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Alleen POST toegestaan' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Alleen POST toegestaan' });
 
   const { question } = req.body || {};
-
-  if (!question || !question.trim()) {
-    return res.status(400).json({ error: 'Geen vraag opgegeven' });
-  }
+  if (!question?.trim()) return res.status(400).json({ error: 'Geen vraag opgegeven' });
 
   try {
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 800,
+      max_tokens: 1000,
       tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-      system: `Je bent de AFAS-assistent van Fluqsus Consultancy.
-Zoek altijd eerst op help.afas.nl naar het antwoord.
-Antwoord in het Nederlands. Wees praktisch en concreet.
-Gebruik <strong>Menu → Submenu</strong> voor navigatiepaden in AFAS.
+      system: `Je bent de assistent van Fluqsus Consultancy (fluqsus.nl).
+Je helpt bezoekers met twee soorten vragen:
 
---- Fluqsus documentatie ---
+1. VRAGEN OVER FLUQSUS (diensten, over ons, contact, werkwijze, prijzen):
+   → Zoek altijd op site:fluqsus.nl of "fluqsus.nl" om actuele informatie te vinden.
+
+2. VRAGEN OVER AFAS SOFTWARE (hoe werkt iets, waar vind ik iets, instellen):
+   → Zoek altijd op help.afas.nl voor de juiste informatie.
+
+3. VRAGEN DIE BEIDE BETREFFEN:
+   → Zoek op beide bronnen en combineer de informatie.
+
+Regels:
+- Antwoord altijd in het Nederlands
+- Wees concreet en praktisch
+- Gebruik <strong>Menu → Submenu</strong> voor AFAS navigatiepaden
+- Als je iets niet kunt vinden, zeg dat eerlijk en verwijs naar info@fluqsus.nl
+
+--- Fluqsus eigen documentatie ---
 ${EIGEN_DOCUMENTEN}`,
       messages: [{ role: 'user', content: question.trim() }]
     });
@@ -49,8 +57,8 @@ ${EIGEN_DOCUMENTEN}`,
 
     return res.status(200).json({
       answer,
-      source: usedSearch ? 'help.afas.nl' : 'Eigen documenten',
-      sources: usedSearch ? ['help.afas.nl', 'Eigen documenten'] : ['Eigen documenten'],
+      source: usedSearch ? 'Web zoekopdracht' : 'Eigen documentatie',
+      sources: usedSearch ? ['fluqsus.nl', 'help.afas.nl'] : ['Eigen documentatie'],
     });
 
   } catch (err) {
