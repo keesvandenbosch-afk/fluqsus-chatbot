@@ -3,594 +3,398 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fluqsus AI Assistent — Demo Widget</title>
+<title>Fluqsus Assistent</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
   :root {
-    --navy: #143347;
-    --blue: #2E8BC0;
-    --orange: #F4A030;
-    --white: #FFFFFF;
-    --surface: #F7F9FB;
-    --border: #E2EAF0;
-    --text: #1A2B38;
-    --text-muted: #6B8299;
-    --bubble-user-bg: #143347;
-    --bubble-ai-bg: #FFFFFF;
-    --shadow: 0 8px 32px rgba(20,51,71,0.13);
-    --radius: 18px;
+    --navy:      #143347;
+    --navy-deep: #0D2233;
+    --navy-mid:  #1A3D54;
+    --blue:      #2E8BC0;
+    --blue-glow: rgba(46,139,192,0.15);
+    --orange:    #F4A030;
+    --text:      rgba(255,255,255,0.92);
+    --muted:     rgba(255,255,255,0.45);
+    --border:    rgba(255,255,255,0.08);
+    --bordermid: rgba(46,139,192,0.25);
+    --surface:   rgba(255,255,255,0.05);
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     font-family: 'DM Sans', sans-serif;
-    background: linear-gradient(135deg, #EBF2F7 0%, #F7F9FB 60%, #EDF5F0 100%);
+    background: transparent;
     min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
   }
 
-  /* ─── CHAT WIDGET ─── */
-  .chat-widget {
-    width: 420px;
-    max-width: 100%;
-    background: var(--white);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    height: 620px;
-    position: relative;
+  /* ── FAB BUTTON ── */
+  .fab {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
+    border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 24px rgba(20,51,71,0.45), 0 0 0 0 rgba(46,139,192,0.4);
+    transition: transform 0.2s, box-shadow 0.2s;
+    z-index: 9998;
+    animation: fabIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
   }
+  @keyframes fabIn {
+    from { opacity:0; transform: scale(0.5); }
+    to   { opacity:1; transform: scale(1); }
+  }
+  .fab:hover {
+    transform: scale(1.08);
+    box-shadow: 0 8px 28px rgba(20,51,71,0.5), 0 0 0 8px rgba(46,139,192,0.12);
+  }
+  .fab:active { transform: scale(0.96); }
 
-  /* Header */
-  .chat-header {
-    background: var(--navy);
-    padding: 18px 20px 16px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    flex-shrink: 0;
-    position: relative;
-    overflow: hidden;
-  }
-  .chat-header::after {
+  /* Orange accent ring */
+  .fab::after {
     content: '';
     position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--orange), var(--blue));
-  }
-
-  .header-avatar {
-    width: 42px; height: 42px;
-    background: linear-gradient(135deg, var(--blue), var(--orange));
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    flex-shrink: 0;
-  }
-
-  .header-info h3 {
-    color: var(--white);
-    font-size: 15px;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-  }
-  .header-info p {
-    color: rgba(255,255,255,0.55);
-    font-size: 12px;
-    margin-top: 2px;
-    font-weight: 400;
-  }
-
-  .header-status {
-    margin-left: auto;
-    display: flex; align-items: center; gap: 6px;
-    font-size: 12px;
-    color: rgba(255,255,255,0.6);
-  }
-  .status-dot {
-    width: 7px; height: 7px;
+    inset: -3px;
     border-radius: 50%;
-    background: #4CAF50;
-    animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.5; transform: scale(0.8); }
+    background: conic-gradient(var(--orange) 0deg, var(--blue) 120deg, transparent 200deg);
+    z-index: -1;
+    opacity: 0.6;
   }
 
-  /* Source pills */
-  .source-bar {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    padding: 8px 16px;
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-    flex-wrap: wrap;
+  .fab-icon { transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+  .fab.open .fab-icon-chat { display: none; }
+  .fab.open .fab-icon-close { display: block !important; }
+  .fab-icon-close { display: none; }
+
+  /* Notificatie badge */
+  .fab-badge {
+    position: absolute;
+    top: -2px; right: -2px;
+    width: 18px; height: 18px;
+    background: var(--orange);
+    border-radius: 50%;
+    font-size: 10px; font-weight: 700;
+    color: white;
+    display: flex; align-items: center; justify-content: center;
+    border: 2px solid white;
+    animation: badgePop 0.4s 1.5s cubic-bezier(0.34,1.56,0.64,1) both;
   }
-  .source-pill {
-    display: flex; align-items: center; gap: 5px;
-    padding: 4px 10px;
+  @keyframes badgePop {
+    from { transform: scale(0); }
+    to   { transform: scale(1); }
+  }
+
+  /* ── CHAT POPUP ── */
+  .popup {
+    position: fixed;
+    bottom: 102px; right: 28px;
+    width: 380px;
+    max-width: calc(100vw - 40px);
+    height: 560px;
+    max-height: calc(100vh - 130px);
     border-radius: 20px;
-    font-size: 11px;
-    font-weight: 500;
-    border: 1px solid;
-  }
-  .source-pill.active {
-    background: rgba(46,139,192,0.1);
-    border-color: var(--blue);
-    color: var(--blue);
-  }
-  .source-pill.inactive {
-    background: rgba(200,210,220,0.15);
-    border-color: var(--border);
-    color: var(--text-muted);
-  }
-  .source-pill .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-  }
-  .source-pill.active .dot { background: var(--blue); }
-  .source-pill.inactive .dot { background: #C8D5DF; }
-
-  /* Messages */
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-    scroll-behavior: smooth;
-  }
-  .chat-messages::-webkit-scrollbar { width: 4px; }
-  .chat-messages::-webkit-scrollbar-track { background: transparent; }
-  .chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-
-  /* Message bubbles */
-  .msg {
-    display: flex;
-    gap: 10px;
-    animation: fadeUp 0.3s ease forwards;
+    overflow: hidden;
+    display: flex; flex-direction: column;
+    background: var(--navy-deep);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
+    z-index: 9999;
+    transform-origin: bottom right;
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
+    transform: scale(0.7) translateY(20px);
     opacity: 0;
+    pointer-events: none;
   }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
+  .popup.visible {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+    pointer-events: all;
   }
+
+  /* Background glow */
+  .popup::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 40% at 80% 5%, rgba(46,139,192,0.13) 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 5% 90%, rgba(244,160,48,0.06) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* Accent line */
+  .accent { height: 2px; background: linear-gradient(90deg, var(--orange), var(--blue), transparent); flex-shrink: 0; position: relative; z-index: 2; }
+
+  /* HEADER */
+  .header {
+    padding: 14px 16px 13px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(13,34,51,0.7);
+    backdrop-filter: blur(12px);
+    display: flex; align-items: center; gap: 11px;
+    flex-shrink: 0; position: relative; z-index: 2;
+  }
+  .logo {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--blue) 0%, var(--orange) 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 13px; color: white;
+    box-shadow: 0 3px 12px rgba(46,139,192,0.3); flex-shrink: 0;
+  }
+  .hinfo h3 { font-size: 14px; font-weight: 600; color: var(--text); }
+  .hinfo p  { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .hstatus  { margin-left: auto; display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .dot      { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.6); animation: breathe 2.5s ease-in-out infinite; }
+  @keyframes breathe { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+  /* MESSAGES */
+  .messages {
+    flex: 1; overflow-y: auto; padding: 16px 14px;
+    display: flex; flex-direction: column; gap: 14px;
+    position: relative; z-index: 1; scroll-behavior: smooth;
+  }
+  .messages::-webkit-scrollbar { width: 3px; }
+  .messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+  .msg { display: flex; gap: 9px; animation: rise 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; opacity: 0; }
+  @keyframes rise { from{opacity:0;transform:translateY(10px) scale(0.97)}to{opacity:1;transform:none} }
   .msg.user { flex-direction: row-reverse; }
 
-  .msg-avatar {
-    width: 32px; height: 32px; border-radius: 10px;
+  .av {
+    width: 28px; height: 28px; border-radius: 8px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px; flex-shrink: 0; align-self: flex-end;
+    font-size: 12px; flex-shrink: 0; align-self: flex-end;
   }
-  .msg.ai .msg-avatar { background: linear-gradient(135deg, var(--navy), var(--blue)); }
-  .msg.user .msg-avatar { background: linear-gradient(135deg, var(--orange), #F7C46A); }
+  .msg.ai   .av { background: linear-gradient(135deg, var(--navy-mid), var(--blue)); border: 1px solid var(--bordermid); }
+  .msg.user .av { background: linear-gradient(135deg, #c47a1a, var(--orange)); }
 
-  .msg-content { max-width: 80%; display: flex; flex-direction: column; gap: 4px; }
-  .msg.user .msg-content { align-items: flex-end; }
+  .mbody { max-width: 84%; display: flex; flex-direction: column; gap: 4px; }
+  .msg.user .mbody { align-items: flex-end; }
 
-  .bubble {
-    padding: 12px 16px;
-    border-radius: 16px;
-    font-size: 13.5px;
-    line-height: 1.55;
-    color: var(--text);
-  }
-  .msg.ai .bubble {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-bottom-left-radius: 4px;
-  }
-  .msg.user .bubble {
-    background: var(--navy);
-    color: var(--white);
-    border-bottom-right-radius: 4px;
-  }
+  .bubble { padding: 10px 14px; border-radius: 15px; font-size: 13px; line-height: 1.6; }
+  .msg.ai   .bubble { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
+  .msg.user .bubble { background: linear-gradient(135deg, var(--blue), #1a6d9e); color: white; border-bottom-right-radius: 4px; box-shadow: 0 3px 14px rgba(46,139,192,0.25); }
 
-  .msg-meta {
-    font-size: 10.5px;
-    color: var(--text-muted);
-    padding: 0 4px;
-    font-family: 'DM Mono', monospace;
-  }
+  .mtime { font-size: 9.5px; color: var(--muted); font-family: 'DM Mono', monospace; padding: 0 3px; }
 
-  /* Source tag on AI message */
-  .source-tag {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 10px; font-weight: 500;
-    padding: 2px 8px;
-    border-radius: 10px;
-    background: rgba(46,139,192,0.1);
-    color: var(--blue);
-    margin-top: 4px;
-    border: 1px solid rgba(46,139,192,0.2);
-    width: fit-content;
-  }
-  .source-tag svg { width: 10px; height: 10px; }
+  /* TYPING */
+  .typing .bubble { display: flex; gap: 5px; align-items: center; padding: 13px 16px; }
+  .typing .bubble span { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); animation: dot 1.3s ease-in-out infinite; opacity: 0.4; }
+  .typing .bubble span:nth-child(2){animation-delay:0.2s}
+  .typing .bubble span:nth-child(3){animation-delay:0.4s}
+  @keyframes dot{0%,100%{transform:translateY(0);opacity:0.4}40%{transform:translateY(-5px);opacity:1}}
 
-  /* Typing indicator */
-  .typing-bubble {
-    display: flex; gap: 5px; align-items: center;
-    padding: 14px 16px;
+  /* SUGGESTIONS */
+  .sugs { padding: 0 14px 10px; display: flex; gap: 6px; flex-wrap: wrap; position: relative; z-index: 1; flex-shrink: 0; }
+  .sug {
+    padding: 5px 11px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 20px;
+    font-size: 11.5px; font-family: 'DM Sans', sans-serif;
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
   }
-  .typing-bubble span {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: var(--blue);
-    animation: bounce 1.2s ease-in-out infinite;
-  }
-  .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
-  .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce {
-    0%, 60%, 100% { transform: translateY(0); }
-    30% { transform: translateY(-6px); }
-  }
+  .sug:hover { background: var(--blue-glow); border-color: var(--bordermid); color: var(--blue); }
 
-  /* Quick suggestions */
-  .suggestions {
-    padding: 0 16px 12px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    flex-shrink: 0;
+  /* INPUT */
+  .input-area {
+    border-top: 1px solid var(--border); padding: 10px 12px;
+    display: flex; gap: 9px; align-items: flex-end;
+    background: rgba(13,34,51,0.75); backdrop-filter: blur(12px);
+    position: relative; z-index: 2; flex-shrink: 0;
   }
-  .suggestion-btn {
-    padding: 7px 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    font-size: 12px;
-    font-family: 'DM Sans', sans-serif;
-    color: var(--text);
-    cursor: pointer;
-    transition: all 0.18s;
-    font-weight: 500;
+  .inwrap {
+    flex: 1; background: var(--surface); border: 1.5px solid var(--border);
+    border-radius: 13px; display: flex; align-items: flex-end; transition: all 0.2s;
   }
-  .suggestion-btn:hover {
-    background: rgba(46,139,192,0.08);
-    border-color: var(--blue);
-    color: var(--blue);
+  .inwrap:focus-within { border-color: var(--bordermid); background: rgba(255,255,255,0.07); }
+  textarea {
+    flex: 1; background: transparent; border: none; outline: none;
+    padding: 10px 13px; font-family: 'DM Sans', sans-serif;
+    font-size: 13px; color: var(--text); resize: none; max-height: 90px; line-height: 1.45;
   }
+  textarea::placeholder { color: var(--muted); }
 
-  /* Input */
-  .chat-input-area {
-    border-top: 1px solid var(--border);
-    padding: 14px 16px;
-    display: flex;
-    gap: 10px;
-    align-items: flex-end;
-    background: var(--white);
-    flex-shrink: 0;
-  }
-
-  .input-wrap {
-    flex: 1;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    display: flex;
-    align-items: flex-end;
-    transition: border-color 0.2s;
-  }
-  .input-wrap:focus-within {
-    border-color: var(--blue);
-    background: var(--white);
-  }
-
-  .chat-input {
-    flex: 1;
-    background: transparent;
-    border: none;
-    outline: none;
-    padding: 11px 14px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13.5px;
-    color: var(--text);
-    resize: none;
-    max-height: 100px;
-    line-height: 1.4;
-  }
-  .chat-input::placeholder { color: var(--text-muted); }
-
-  .attach-btn {
-    padding: 8px; margin: 4px;
-    background: none; border: none; cursor: pointer;
-    color: var(--text-muted);
-    border-radius: 8px;
-    transition: all 0.18s;
-    display: flex;
-  }
-  .attach-btn:hover { background: var(--border); color: var(--blue); }
-
-  .send-btn {
-    width: 42px; height: 42px;
-    background: var(--navy);
-    border: none; border-radius: 12px;
-    cursor: pointer;
+  .sendbtn {
+    width: 38px; height: 38px;
+    background: linear-gradient(135deg, var(--blue), #1a6d9e);
+    border: none; border-radius: 11px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
+    transition: all 0.2s; flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(46,139,192,0.3);
   }
-  .send-btn:hover { background: var(--blue); transform: scale(1.05); }
-  .send-btn:active { transform: scale(0.97); }
-  .send-btn svg { color: white; }
+  .sendbtn:hover  { transform: scale(1.07); box-shadow: 0 5px 16px rgba(46,139,192,0.4); }
+  .sendbtn:active { transform: scale(0.95); }
 
-  /* Upload preview */
-  .upload-preview {
-    display: none;
-    padding: 6px 16px;
-    background: rgba(46,139,192,0.06);
-    border-top: 1px solid var(--border);
-    font-size: 12px;
-    color: var(--blue);
-    align-items: center;
-    gap: 8px;
-  }
-  .upload-preview.visible { display: flex; }
-  .upload-preview .remove { cursor: pointer; color: var(--text-muted); margin-left: auto; }
-
-  /* Disclaimer */
-  .disclaimer {
-    text-align: center;
-    font-size: 10px;
-    color: var(--text-muted);
-    padding: 6px 16px 10px;
-    letter-spacing: 0.01em;
+  .footnote {
+    text-align: center; font-size: 9.5px; color: var(--muted);
+    padding: 4px 0 8px; font-family: 'DM Mono', monospace;
+    position: relative; z-index: 2; flex-shrink: 0;
   }
 </style>
 </head>
 <body>
 
-<div class="chat-widget">
+<!-- FAB knop -->
+<button class="fab" id="fab" onclick="toggleChat()" title="Fluqsus Assistent">
+  <div class="fab-badge">1</div>
+  <svg class="fab-icon fab-icon-chat" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+  <svg class="fab-icon fab-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+</button>
 
-  <!-- Header -->
-  <div class="chat-header">
-    <div class="header-avatar">🤖</div>
-    <div class="header-info">
+<!-- Chat popup -->
+<div class="popup" id="popup">
+  <div class="accent"></div>
+
+  <div class="header">
+    <div class="logo">fq</div>
+    <div class="hinfo">
       <h3>Fluqsus Assistent</h3>
-      <p>AFAS Help & Documentatie</p>
+      <p>Stel een vraag over AFAS</p>
     </div>
-    <div class="header-status">
-      <div class="status-dot"></div>
-      Online
-    </div>
+    <div class="hstatus"><div class="dot"></div>online</div>
   </div>
 
-  <!-- Bronnen -->
-  <div class="source-bar">
-    <div class="source-pill active"><div class="dot"></div>help.afas.nl</div>
-    <div class="source-pill active"><div class="dot"></div>Eigen documenten</div>
-    <div class="source-pill inactive"><div class="dot"></div>Algemeen AI (binnenkort)</div>
-    <div class="source-pill inactive"><div class="dot"></div>LinkedIn (binnenkort)</div>
-  </div>
-
-  <!-- Berichten -->
-  <div class="chat-messages" id="messages">
+  <div class="messages" id="messages">
     <div class="msg ai">
-      <div class="msg-avatar">🤖</div>
-      <div class="msg-content">
-        <div class="bubble">
-          Hallo! Ik ben de Fluqsus Assistent. Ik help je met vragen over <strong>AFAS</strong> op basis van de officiële helpdocumentatie en de eigen documenten van Fluqsus.<br><br>
-          Wat kan ik voor je opzoeken?
-        </div>
-        <div class="source-tag">
-          <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" opacity="0.2"/><path d="M12 7v5l3 3" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-          Klaar om te helpen
-        </div>
-        <div class="msg-meta">Nu</div>
+      <div class="av">🤖</div>
+      <div class="mbody">
+        <div class="bubble">Hallo! Ik help je met vragen over <strong>AFAS</strong>. Wat wil je weten?</div>
+        <div class="mtime">nu</div>
       </div>
     </div>
   </div>
 
-  <!-- Suggesties -->
-  <div class="suggestions" id="suggestions">
-    <button class="suggestion-btn" onclick="sendSuggestion(this)">Hoe maak ik een inkooporder?</button>
-    <button class="suggestion-btn" onclick="sendSuggestion(this)">Autorisaties instellen</button>
-    <button class="suggestion-btn" onclick="sendSuggestion(this)">Rapportage exporteren</button>
+  <div class="sugs" id="sugs">
+    <button class="sug" onclick="useSug(this)">Inkooporder aanmaken</button>
+    <button class="sug" onclick="useSug(this)">Verlofaanvraag</button>
+    <button class="sug" onclick="useSug(this)">Autorisaties</button>
   </div>
 
-  <!-- Upload preview -->
-  <div class="upload-preview" id="uploadPreview">
-    📄 <span id="uploadName">document.pdf</span>
-    <span class="remove" onclick="clearUpload()">✕</span>
-  </div>
-
-  <!-- Input -->
-  <div class="chat-input-area">
-    <div class="input-wrap">
-      <textarea class="chat-input" id="chatInput" placeholder="Stel een vraag over AFAS..." rows="1"
-        onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
-      <label class="attach-btn" title="Document uploaden">
-        <input type="file" id="fileInput" style="display:none" accept=".pdf,.docx,.txt" onchange="handleFile(event)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
-      </label>
+  <div class="input-area">
+    <div class="inwrap">
+      <textarea id="inp" rows="1" placeholder="Typ je vraag..." onkeydown="onKey(event)" oninput="resize(this)"></textarea>
     </div>
-    <button class="send-btn" onclick="sendMessage()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    <button class="sendbtn" onclick="send()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
     </button>
   </div>
-  <div class="disclaimer">Powered by Fluqsus · Antwoorden op basis van AFAS help & eigen docs</div>
+  <div class="footnote">fluqsus.nl · AFAS help &amp; eigen documentatie</div>
 </div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────────────────
-// Vervang dit door de URL van jouw backend (zie backend instructies hieronder)
-const BACKEND_URL = 'https://jouw-backend.vercel.app/chat';
+const BACKEND_URL = 'https://fluqsus-chatbot.vercel.app/api/chat';
+const DEMO_MODE   = false;
 
-// ─── DEMO modus (werkt zonder backend) ────────────────────────
-const DEMO_MODE = true; // Zet op false als backend live is
-
-const DEMO_RESPONSES = [
-  { answer: "In AFAS kun je een inkooporder aanmaken via <strong>Inkoop → Inkooporders → Nieuw</strong>. Vul het leveranciersnummer, de artikelen en de gewenste leverdatum in. Na goedkeuring wordt de order automatisch naar de leverancier verstuurd.", source: "help.afas.nl" },
-  { answer: "Autorisaties beheer je in AFAS via het <strong>Beheer menu → Medewerkers → Rollen</strong>. Je kunt per rol instellen welke menu's en functies een gebruiker mag zien. Wil je een specifieke rol bespreken?", source: "help.afas.nl" },
-  { answer: "Voor een export van rapportages ga je naar de gewenste rapportage en klik je op het <strong>export-icoon</strong> (rechtsboven). Je kunt exporteren naar Excel, PDF of CSV formaat.", source: "Eigen documenten" },
-  { answer: "Ik heb dat opgezocht in de Fluqsus documentatie. Wil je dat ik een specifieke stap uitleg of heb je een ander gerelateerd vraag?", source: "Eigen documenten" },
-  { answer: "Op basis van de AFAS helpdocumentatie: dit stel je in via <strong>Instellingen → Configuratie</strong>. Mocht je er niet uitkomen, kan ik de stappen gedetailleerd doorlopen.", source: "help.afas.nl" },
+const DEMO = [
+  { answer: "In AFAS maak je een inkooporder aan via <strong>Inkoop → Inkooporders → Nieuw</strong>. Vul leverancier, artikelen en leverdatum in.", source: "help.afas.nl" },
+  { answer: "Autorisaties beheer je via <strong>Beheer → Medewerkers → Rollen</strong>.", source: "help.afas.nl" },
+  { answer: "Een verlofaanvraag dien je in via <strong>Self Service → Verlof → Nieuwe aanvraag</strong>.", source: "help.afas.nl" },
 ];
-
 let demoIdx = 0;
-let uploadedFile = null;
 
-// ─── UI helpers ───────────────────────────────────────────────
-function autoResize(el) {
+function toggleChat() {
+  const popup = document.getElementById('popup');
+  const fab   = document.getElementById('fab');
+  const badge = fab.querySelector('.fab-badge');
+  popup.classList.toggle('visible');
+  fab.classList.toggle('open');
+  if (badge) badge.remove();
+}
+
+function resize(el) {
   el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+  el.style.height = Math.min(el.scrollHeight, 90) + 'px';
 }
-
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
+function onKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
 }
-
-function handleFile(e) {
-  const file = e.target.files[0];
-  if (!file) return;
-  uploadedFile = file;
-  document.getElementById('uploadName').textContent = file.name;
-  document.getElementById('uploadPreview').classList.add('visible');
+function useSug(btn) {
+  document.getElementById('inp').value = btn.textContent;
+  document.getElementById('sugs').style.display = 'none';
+  send();
 }
-
-function clearUpload() {
-  uploadedFile = null;
-  document.getElementById('fileInput').value = '';
-  document.getElementById('uploadPreview').classList.remove('visible');
-}
-
-function sendSuggestion(btn) {
-  document.getElementById('chatInput').value = btn.textContent;
-  document.getElementById('suggestions').style.display = 'none';
-  sendMessage();
-}
-
-function getTime() {
+function now() {
   return new Date().toLocaleTimeString('nl-NL', { hour: '2-digit', minute: '2-digit' });
 }
-
-function appendMessage(role, text, source) {
-  const msgs = document.getElementById('messages');
-
+function addMsg(role, html) {
   const wrap = document.createElement('div');
   wrap.className = `msg ${role}`;
 
-  const avatar = document.createElement('div');
-  avatar.className = 'msg-avatar';
-  avatar.textContent = role === 'ai' ? '🤖' : '👤';
+  const av = document.createElement('div');
+  av.className = 'av';
+  av.textContent = role === 'ai' ? '🤖' : '👤';
 
-  const content = document.createElement('div');
-  content.className = 'msg-content';
+  const body = document.createElement('div');
+  body.className = 'mbody';
 
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble';
-  bubble.innerHTML = text;
+  const bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.innerHTML = html;
+  body.appendChild(bub);
 
-  const meta = document.createElement('div');
-  meta.className = 'msg-meta';
-  meta.textContent = getTime();
+  const t = document.createElement('div');
+  t.className = 'mtime';
+  t.textContent = now();
+  body.appendChild(t);
 
-  content.appendChild(bubble);
+  wrap.appendChild(av);
+  wrap.appendChild(body);
 
-  if (role === 'ai' && source) {
-    const tag = document.createElement('div');
-    tag.className = 'source-tag';
-    tag.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm1 11H9V9h2v4zm0-6H9V5h2v2z"/></svg> Bron: ${source}`;
-    content.appendChild(tag);
-  }
-
-  content.appendChild(meta);
-  wrap.appendChild(avatar);
-  wrap.appendChild(content);
-  msgs.appendChild(wrap);
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function showTyping() {
   const msgs = document.getElementById('messages');
-  const wrap = document.createElement('div');
-  wrap.className = 'msg ai';
-  wrap.id = 'typing';
-
-  const avatar = document.createElement('div');
-  avatar.className = 'msg-avatar';
-  avatar.textContent = '🤖';
-
-  const content = document.createElement('div');
-  content.className = 'msg-content';
-
-  const bubble = document.createElement('div');
-  bubble.className = 'bubble typing-bubble';
-  bubble.innerHTML = '<span></span><span></span><span></span>';
-
-  content.appendChild(bubble);
-  wrap.appendChild(avatar);
-  wrap.appendChild(content);
   msgs.appendChild(wrap);
   msgs.scrollTop = msgs.scrollHeight;
 }
-
+function showTyping() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg ai typing';
+  wrap.id = 'typing';
+  wrap.innerHTML = `<div class="av">🤖</div><div class="mbody"><div class="bubble"><span></span><span></span><span></span></div></div>`;
+  const msgs = document.getElementById('messages');
+  msgs.appendChild(wrap);
+  msgs.scrollTop = msgs.scrollHeight;
+}
 function removeTyping() {
   const t = document.getElementById('typing');
   if (t) t.remove();
 }
-
-// ─── Verstuur bericht ─────────────────────────────────────────
-async function sendMessage() {
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim();
+async function send() {
+  const inp  = document.getElementById('inp');
+  const text = inp.value.trim();
   if (!text) return;
 
-  // Reset input
-  appendMessage('user', text);
-  input.value = '';
-  input.style.height = 'auto';
-  document.getElementById('suggestions').style.display = 'none';
-
+  inp.value = '';
+  inp.style.height = 'auto';
+  document.getElementById('sugs').style.display = 'none';
+  addMsg('user', text);
   showTyping();
 
   if (DEMO_MODE) {
-    // Demo: simuleer wachttijd en geef demo-antwoord
-    await new Promise(r => setTimeout(r, 1200 + Math.random() * 800));
+    await new Promise(r => setTimeout(r, 900 + Math.random() * 600));
     removeTyping();
-    const resp = DEMO_RESPONSES[demoIdx % DEMO_RESPONSES.length];
-    demoIdx++;
-    appendMessage('ai', resp.answer, resp.source);
+    const d = DEMO[demoIdx++ % DEMO.length];
+    addMsg('ai', d.answer);
     return;
   }
 
-  // ─── Echte API call naar jouw backend ────────────────────────
   try {
-    const formData = new FormData();
-    formData.append('question', text);
-    if (uploadedFile) {
-      formData.append('document', uploadedFile);
-      clearUpload();
-    }
-
     const res = await fetch(BACKEND_URL, {
       method: 'POST',
-      body: formData
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: text })
     });
-
     removeTyping();
-
-    if (!res.ok) throw new Error('Backend fout');
+    if (!res.ok) throw new Error('Fout ' + res.status);
     const data = await res.json();
-    appendMessage('ai', data.answer, data.source);
+    addMsg('ai', data.answer);
   } catch (err) {
     removeTyping();
-    appendMessage('ai', '⚠️ Kon geen verbinding maken met de assistent. Probeer het later opnieuw.', null);
+    addMsg('ai', '⚠️ Kon geen verbinding maken. Probeer het opnieuw.');
   }
 }
 </script>
-
 </body>
 </html>
