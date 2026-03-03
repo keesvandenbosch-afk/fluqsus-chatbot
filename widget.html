@@ -236,6 +236,23 @@ const AI_AVATAR = `<svg width="26" height="26" viewBox="0 0 32 32" fill="none" x
   <circle cx="16" cy="1.2" r="1.2" fill="rgba(255,255,255,0.6)"/>
 </svg>`;
 
+function mdToHtml(text) {
+  return text
+    .replace(/^### (.+)$/gm, '<div style="font-size:11px;font-weight:600;opacity:0.6;text-transform:uppercase;letter-spacing:0.05em;margin-top:10px;margin-bottom:4px;">$1</div>')
+    .replace(/^## (.+)$/gm, '<div style="font-weight:600;margin-top:8px;margin-bottom:4px;">$1</div>')
+    .replace(/^# (.+)$/gm, '<div style="font-weight:700;margin-bottom:6px;">$1</div>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/^[\-–—] (.+)$/gm, '<div style="display:flex;gap:6px;padding:2px 0;"><span style="color:var(--blue);flex-shrink:0;">•</span><span>$1</span></div>')
+    .replace(/^[✅📧📞🌐🏢] (.+)$/gm, '<div style="display:flex;gap:6px;padding:2px 0;"><span style="color:var(--blue);flex-shrink:0;">•</span><span>$1</span></div>')
+    .replace(/^• (.+)$/gm, '<div style="display:flex;gap:6px;padding:2px 0;"><span style="color:var(--blue);flex-shrink:0;">•</span><span>$1</span></div>')
+    .replace(/^\d+\. (.+)$/gm, '<div style="padding:2px 0;">$1</div>')
+    .replace(/---+/g, '<hr style="border:none;border-top:1px solid rgba(255,255,255,0.1);margin:8px 0;">')
+    .replace(/\n\n/g, '<div style="height:6px;"></div>')
+    .replace(/\n/g, '<br>');
+}
+
+
 function resize(el) {
   el.style.height = 'auto';
   el.style.height = Math.min(el.scrollHeight, 100) + 'px';
@@ -265,7 +282,7 @@ function addMsg(role, html) {
   body.className = 'mbody';
   const bub = document.createElement('div');
   bub.className = 'bubble';
-  bub.innerHTML = html;
+  bub.innerHTML = mdToHtml(html);
   body.appendChild(bub);
   const t = document.createElement('div');
   t.className = 'mtime';
