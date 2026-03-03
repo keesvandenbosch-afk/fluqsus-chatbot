@@ -8,10 +8,10 @@
 <style>
   :root {
     --navy:      #143347;
-    --navy-deep: #152b38;
-    --navy-mid:  #1A3D54;
+    --deep:      #152b38;
+    --mid:       #1A3D54;
     --blue:      #2E8BC0;
-    --blue-glow: rgba(46,139,192,0.15);
+    --bglow:     rgba(46,139,192,0.15);
     --orange:    #F4A030;
     --text:      rgba(255,255,255,0.92);
     --muted:     rgba(255,255,255,0.45);
@@ -19,295 +19,226 @@
     --bordermid: rgba(46,139,192,0.25);
     --surface:   rgba(255,255,255,0.05);
   }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
+  html, body {
+    width: 100%; height: 100%;
     font-family: 'DM Sans', sans-serif;
-    background: transparent;
-    min-height: 100vh;
+    background: var(--deep);
   }
 
-  /* ── FAB BUTTON ── */
-  .fab {
-    position: fixed;
-    bottom: 28px; right: 28px;
-    width: 60px; height: 60px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--navy) 0%, var(--blue) 100%);
-    border: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 6px 24px rgba(20,51,71,0.45), 0 0 0 0 rgba(46,139,192,0.4);
-    transition: transform 0.2s, box-shadow 0.2s;
-    z-index: 9998;
-    animation: fabIn 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards;
-  }
-  @keyframes fabIn {
-    from { opacity:0; transform: scale(0.5); }
-    to   { opacity:1; transform: scale(1); }
-  }
-  .fab:hover {
-    transform: scale(1.08);
-    box-shadow: 0 8px 28px rgba(20,51,71,0.5), 0 0 0 8px rgba(46,139,192,0.12);
-  }
-  .fab:active { transform: scale(0.96); }
-
-  /* Orange accent ring */
-  .fab::after {
-    content: '';
-    position: absolute;
-    inset: -3px;
-    border-radius: 50%;
-    background: conic-gradient(var(--orange) 0deg, var(--blue) 120deg, transparent 200deg);
-    z-index: -1;
-    opacity: 0.6;
-  }
-
-  .fab-icon { transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-  .fab.open .fab-icon-chat { display: none; }
-  .fab.open .fab-icon-close { display: block !important; }
-  .fab-icon-close { display: none; }
-
-  /* Notificatie badge */
-  .fab-badge {
-    position: absolute;
-    top: -2px; right: -2px;
-    width: 18px; height: 18px;
-    background: var(--orange);
-    border-radius: 50%;
-    font-size: 10px; font-weight: 700;
-    color: white;
-    display: flex; align-items: center; justify-content: center;
-    border: 2px solid white;
-    animation: badgePop 0.4s 1.5s cubic-bezier(0.34,1.56,0.64,1) both;
-  }
-  @keyframes badgePop {
-    from { transform: scale(0); }
-    to   { transform: scale(1); }
-  }
-
-  /* ── CHAT POPUP ── */
-  .popup {
-    position: fixed;
-    bottom: 102px; right: 28px;
-    width: 380px;
-    max-width: calc(100vw - 40px);
-    height: 560px;
-    max-height: calc(100vh - 130px);
-    border-radius: 20px;
+  .chat {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--deep);
+    position: relative;
     overflow: hidden;
-    display: flex; flex-direction: column;
-    background: var(--navy-deep);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.07);
-    z-index: 9999;
-    transform-origin: bottom right;
-    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
-    transform: scale(0.7) translateY(20px);
-    opacity: 0;
-    pointer-events: none;
-  }
-  .popup.visible {
-    transform: scale(1) translateY(0);
-    opacity: 1;
-    pointer-events: all;
   }
 
-  /* Background glow */
-  .popup::before {
+  .chat::before {
     content: '';
     position: absolute; inset: 0;
     background:
-      radial-gradient(ellipse 70% 40% at 80% 5%, rgba(46,139,192,0.13) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 5%, rgba(46,139,192,0.12) 0%, transparent 60%),
       radial-gradient(ellipse 40% 30% at 5% 90%, rgba(244,160,48,0.06) 0%, transparent 50%);
     pointer-events: none; z-index: 0;
   }
 
-  /* Accent line */
-  .accent { height: 2px; background: linear-gradient(90deg, var(--orange), var(--blue), transparent); flex-shrink: 0; position: relative; z-index: 2; }
+  .accent {
+    height: 3px;
+    background: linear-gradient(90deg, var(--orange), var(--blue), transparent);
+    flex-shrink: 0; position: relative; z-index: 2;
+  }
 
   /* HEADER */
   .header {
-    padding: 14px 16px 13px;
+    padding: 16px 20px 14px;
     border-bottom: 1px solid var(--border);
-    background: rgba(13,34,51,0.7);
+    background: rgba(21,43,56,0.8);
     backdrop-filter: blur(12px);
-    display: flex; align-items: center; gap: 11px;
+    display: flex; align-items: center; gap: 12px;
     flex-shrink: 0; position: relative; z-index: 2;
   }
   .logo {
-    width: 36px; height: 36px; border-radius: 10px;
+    width: 40px; height: 40px; border-radius: 12px;
     background: linear-gradient(135deg, var(--blue) 0%, var(--orange) 100%);
     display: flex; align-items: center; justify-content: center;
-    font-weight: 700; font-size: 13px; color: white;
-    box-shadow: 0 3px 12px rgba(46,139,192,0.3); flex-shrink: 0;
+    font-weight: 700; font-size: 14px; color: white;
+    box-shadow: 0 4px 14px rgba(46,139,192,0.3); flex-shrink: 0;
   }
-  .hinfo h3 { font-size: 14px; font-weight: 600; color: var(--text); }
-  .hinfo p  { font-size: 11px; color: var(--muted); margin-top: 1px; }
-  .hstatus  { margin-left: auto; display: flex; align-items: center; gap: 5px; font-size: 10.5px; color: var(--muted); font-family: 'DM Mono', monospace; }
-  .dot      { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,0.6); animation: breathe 2.5s ease-in-out infinite; }
+  .hinfo h2 { font-size: 15px; font-weight: 600; color: var(--text); }
+  .hinfo p  { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+  .hstatus  { margin-left: auto; display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); font-family: 'DM Mono', monospace; }
+  .hdot     { width: 7px; height: 7px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 7px rgba(74,222,128,0.6); animation: breathe 2.5s ease-in-out infinite; }
   @keyframes breathe { 0%,100%{opacity:1}50%{opacity:0.4} }
 
   /* MESSAGES */
   .messages {
-    flex: 1; overflow-y: auto; padding: 16px 14px;
-    display: flex; flex-direction: column; gap: 14px;
+    flex: 1; overflow-y: auto; padding: 20px 16px;
+    display: flex; flex-direction: column; gap: 16px;
     position: relative; z-index: 1; scroll-behavior: smooth;
   }
   .messages::-webkit-scrollbar { width: 3px; }
   .messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
-  .msg { display: flex; gap: 9px; animation: rise 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; opacity: 0; }
+  .msg { display: flex; gap: 10px; animation: rise 0.3s cubic-bezier(0.34,1.56,0.64,1) forwards; opacity: 0; }
   @keyframes rise { from{opacity:0;transform:translateY(10px) scale(0.97)}to{opacity:1;transform:none} }
   .msg.user { flex-direction: row-reverse; }
 
   .av {
-    width: 28px; height: 28px; border-radius: 8px;
+    width: 36px; height: 36px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 12px; flex-shrink: 0; align-self: flex-end;
+    flex-shrink: 0; align-self: flex-end;
   }
-  .msg.ai   .av { background: linear-gradient(135deg, var(--navy-mid), var(--blue)); border: 1px solid var(--bordermid); }
-  .msg.user .av { background: linear-gradient(135deg, #c47a1a, var(--orange)); }
+  .msg.ai .av {
+    background: linear-gradient(135deg, var(--orange) 0%, #e08820 100%);
+    box-shadow: 0 3px 10px rgba(244,160,48,0.45);
+    padding: 5px;
+  }
+  .msg.user .av {
+    background: linear-gradient(135deg, var(--blue), #1a6d9e);
+    box-shadow: 0 3px 10px rgba(46,139,192,0.3);
+    font-size: 16px;
+  }
 
-  .mbody { max-width: 84%; display: flex; flex-direction: column; gap: 4px; }
+  .mbody { max-width: 75%; display: flex; flex-direction: column; gap: 5px; }
   .msg.user .mbody { align-items: flex-end; }
 
-  .bubble { padding: 10px 14px; border-radius: 15px; font-size: 13px; line-height: 1.6; }
+  .bubble { padding: 12px 16px; border-radius: 16px; font-size: 14px; line-height: 1.65; }
   .msg.ai   .bubble { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--text); border-bottom-left-radius: 4px; }
-  .msg.user .bubble { background: linear-gradient(135deg, var(--blue), #1a6d9e); color: white; border-bottom-right-radius: 4px; box-shadow: 0 3px 14px rgba(46,139,192,0.25); }
+  .msg.user .bubble { background: linear-gradient(135deg, var(--blue), #1a6d9e); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 16px rgba(46,139,192,0.25); }
 
-  .mtime { font-size: 9.5px; color: var(--muted); font-family: 'DM Mono', monospace; padding: 0 3px; }
+  .mtime { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; padding: 0 3px; }
 
   /* TYPING */
-  .typing .bubble { display: flex; gap: 5px; align-items: center; padding: 13px 16px; }
-  .typing .bubble span { width: 5px; height: 5px; border-radius: 50%; background: var(--blue); animation: dot 1.3s ease-in-out infinite; opacity: 0.4; }
+  .typing .bubble { display: flex; gap: 6px; align-items: center; padding: 14px 18px; }
+  .typing .bubble span { width: 6px; height: 6px; border-radius: 50%; background: var(--blue); animation: dot 1.3s ease-in-out infinite; opacity: 0.4; }
   .typing .bubble span:nth-child(2){animation-delay:0.2s}
   .typing .bubble span:nth-child(3){animation-delay:0.4s}
-  @keyframes dot{0%,100%{transform:translateY(0);opacity:0.4}40%{transform:translateY(-5px);opacity:1}}
+  @keyframes dot{0%,100%{transform:translateY(0);opacity:0.4}40%{transform:translateY(-6px);opacity:1}}
 
   /* SUGGESTIONS */
-  .sugs { padding: 0 14px 10px; display: flex; gap: 6px; flex-wrap: wrap; position: relative; z-index: 1; flex-shrink: 0; }
+  .sugs { padding: 0 16px 12px; display: flex; gap: 8px; flex-wrap: wrap; position: relative; z-index: 1; flex-shrink: 0; }
   .sug {
-    padding: 5px 11px; background: var(--surface);
+    padding: 7px 14px; background: var(--surface);
     border: 1px solid var(--border); border-radius: 20px;
-    font-size: 11.5px; font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px; font-family: 'DM Sans', sans-serif;
     color: var(--muted); cursor: pointer; transition: all 0.2s;
   }
-  .sug:hover { background: var(--blue-glow); border-color: var(--bordermid); color: var(--blue); }
+  .sug:hover { background: var(--bglow); border-color: var(--bordermid); color: var(--blue); }
 
   /* INPUT */
   .input-area {
-    border-top: 1px solid var(--border); padding: 10px 12px;
-    display: flex; gap: 9px; align-items: flex-end;
-    background: rgba(13,34,51,0.75); backdrop-filter: blur(12px);
+    border-top: 1px solid var(--border); padding: 14px 16px;
+    display: flex; gap: 10px; align-items: flex-end;
+    background: rgba(21,43,56,0.85); backdrop-filter: blur(12px);
     position: relative; z-index: 2; flex-shrink: 0;
   }
   .inwrap {
     flex: 1; background: var(--surface); border: 1.5px solid var(--border);
-    border-radius: 13px; display: flex; align-items: flex-end; transition: all 0.2s;
+    border-radius: 14px; display: flex; align-items: flex-end; transition: all 0.2s;
   }
   .inwrap:focus-within { border-color: var(--bordermid); background: rgba(255,255,255,0.07); }
   textarea {
     flex: 1; background: transparent; border: none; outline: none;
-    padding: 10px 13px; font-family: 'DM Sans', sans-serif;
-    font-size: 13px; color: var(--text); resize: none; max-height: 90px; line-height: 1.45;
+    padding: 12px 14px; font-family: 'DM Sans', sans-serif;
+    font-size: 14px; color: var(--text); resize: none; max-height: 100px; line-height: 1.45;
   }
   textarea::placeholder { color: var(--muted); }
 
   .sendbtn {
-    width: 38px; height: 38px;
+    width: 42px; height: 42px;
     background: linear-gradient(135deg, var(--blue), #1a6d9e);
-    border: none; border-radius: 11px; cursor: pointer;
+    border: none; border-radius: 13px; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
     transition: all 0.2s; flex-shrink: 0;
-    box-shadow: 0 3px 10px rgba(46,139,192,0.3);
+    box-shadow: 0 4px 12px rgba(46,139,192,0.3);
   }
-  .sendbtn:hover  { transform: scale(1.07); box-shadow: 0 5px 16px rgba(46,139,192,0.4); }
+  .sendbtn:hover  { transform: scale(1.07); box-shadow: 0 6px 18px rgba(46,139,192,0.4); }
   .sendbtn:active { transform: scale(0.95); }
 
   .footnote {
-    text-align: center; font-size: 9.5px; color: var(--muted);
-    padding: 4px 0 8px; font-family: 'DM Mono', monospace;
+    text-align: center; font-size: 10px; color: var(--muted);
+    padding: 6px 0 10px; font-family: 'DM Mono', monospace;
     position: relative; z-index: 2; flex-shrink: 0;
   }
 </style>
 </head>
 <body>
-
-<!-- FAB knop -->
-<button class="fab" id="fab" onclick="toggleChat()" title="Fluqsus Assistent">
-  <div class="fab-badge">1</div>
-  <svg class="fab-icon fab-icon-chat" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
-  </svg>
-  <svg class="fab-icon fab-icon-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
-    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-  </svg>
-</button>
-
-<!-- Chat popup -->
-<div class="popup" id="popup">
+<div class="chat">
   <div class="accent"></div>
 
   <div class="header">
     <div class="logo">fq</div>
     <div class="hinfo">
-      <h3>Fluqsus Assistent</h3>
-      <p>Stel een vraag over AFAS</p>
+      <h2>Fluqsus Assistent</h2>
+      <p>Stel een vraag over Fluqsus of AFAS</p>
     </div>
-    <div class="hstatus"><div class="dot"></div>online</div>
+    <div class="hstatus"><div class="hdot"></div>online</div>
   </div>
 
   <div class="messages" id="messages">
     <div class="msg ai">
-      <div class="av">🤖</div>
+      <div class="av">
+        <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="13" r="8" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="1.8"/>
+          <circle cx="12.5" cy="12" r="1.8" fill="white"/>
+          <circle cx="19.5" cy="12" r="1.8" fill="white"/>
+          <path d="M12 16.5 Q16 20 20 16.5" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <rect x="14" y="21" width="4" height="3" rx="1" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="1.5"/>
+          <path d="M8 29 Q8 25 16 25 Q24 25 24 29" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+          <line x1="16" y1="5" x2="16" y2="2" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="16" cy="1.2" r="1.2" fill="rgba(255,255,255,0.6)"/>
+        </svg>
+      </div>
       <div class="mbody">
-        <div class="bubble">Hallo! Ik help je met vragen over <strong>AFAS</strong>. Wat wil je weten?</div>
+        <div class="bubble">Hallo! Ik help je graag met vragen over <strong>Fluqsus</strong> en <strong>AFAS</strong>. Wat wil je weten?</div>
         <div class="mtime">nu</div>
       </div>
     </div>
   </div>
 
   <div class="sugs" id="sugs">
-    <button class="sug" onclick="useSug(this)">Inkooporder aanmaken</button>
-    <button class="sug" onclick="useSug(this)">Verlofaanvraag</button>
-    <button class="sug" onclick="useSug(this)">Autorisaties</button>
+    <button class="sug" onclick="useSug(this)">Wat doet Fluqsus?</button>
+    <button class="sug" onclick="useSug(this)">Verlofaanvraag indienen</button>
+    <button class="sug" onclick="useSug(this)">Autorisaties instellen</button>
+    <button class="sug" onclick="useSug(this)">Contact opnemen</button>
   </div>
 
   <div class="input-area">
     <div class="inwrap">
-      <textarea id="inp" rows="1" placeholder="Typ je vraag..." onkeydown="onKey(event)" oninput="resize(this)"></textarea>
+      <textarea id="inp" rows="1" placeholder="Typ je vraag..."
+        onkeydown="onKey(event)" oninput="resize(this)"></textarea>
     </div>
     <button class="sendbtn" onclick="send()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
       </svg>
     </button>
   </div>
-  <div class="footnote">fluqsus.nl · AFAS help &amp; eigen documentatie</div>
+  <div class="footnote">fluqsus.nl · antwoorden via AFAS help &amp; eigen documentatie</div>
 </div>
 
 <script>
-const BACKEND_URL = 'https://fluqsus-chatbot.vercel.app/api/chat';
-const DEMO_MODE   = false;
+const BACKEND = 'https://fluqsus-chatbot.vercel.app/api/chat';
 
-const DEMO = [
-  { answer: "In AFAS maak je een inkooporder aan via <strong>Inkoop → Inkooporders → Nieuw</strong>. Vul leverancier, artikelen en leverdatum in.", source: "help.afas.nl" },
-  { answer: "Autorisaties beheer je via <strong>Beheer → Medewerkers → Rollen</strong>.", source: "help.afas.nl" },
-  { answer: "Een verlofaanvraag dien je in via <strong>Self Service → Verlof → Nieuwe aanvraag</strong>.", source: "help.afas.nl" },
-];
-let demoIdx = 0;
-
-function toggleChat() {
-  const popup = document.getElementById('popup');
-  const fab   = document.getElementById('fab');
-  const badge = fab.querySelector('.fab-badge');
-  popup.classList.toggle('visible');
-  fab.classList.toggle('open');
-  if (badge) badge.remove();
-}
+const AI_AVATAR = `<svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="16" cy="13" r="8" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="1.8"/>
+  <circle cx="12.5" cy="12" r="1.8" fill="white"/>
+  <circle cx="19.5" cy="12" r="1.8" fill="white"/>
+  <path d="M12 16.5 Q16 20 20 16.5" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <rect x="14" y="21" width="4" height="3" rx="1" fill="rgba(255,255,255,0.2)" stroke="white" stroke-width="1.5"/>
+  <path d="M8 29 Q8 25 16 25 Q24 25 24 29" stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none"/>
+  <line x1="16" y1="5" x2="16" y2="2" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" stroke-linecap="round"/>
+  <circle cx="16" cy="1.2" r="1.2" fill="rgba(255,255,255,0.6)"/>
+</svg>`;
 
 function resize(el) {
   el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 90) + 'px';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
 }
 function onKey(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
@@ -323,27 +254,25 @@ function now() {
 function addMsg(role, html) {
   const wrap = document.createElement('div');
   wrap.className = `msg ${role}`;
-
   const av = document.createElement('div');
   av.className = 'av';
-  av.textContent = role === 'ai' ? '🤖' : '👤';
-
+  if (role === 'ai') {
+    av.innerHTML = AI_AVATAR;
+  } else {
+    av.textContent = '👤';
+  }
   const body = document.createElement('div');
   body.className = 'mbody';
-
   const bub = document.createElement('div');
   bub.className = 'bubble';
   bub.innerHTML = html;
   body.appendChild(bub);
-
   const t = document.createElement('div');
   t.className = 'mtime';
   t.textContent = now();
   body.appendChild(t);
-
   wrap.appendChild(av);
   wrap.appendChild(body);
-
   const msgs = document.getElementById('messages');
   msgs.appendChild(wrap);
   msgs.scrollTop = msgs.scrollHeight;
@@ -352,7 +281,17 @@ function showTyping() {
   const wrap = document.createElement('div');
   wrap.className = 'msg ai typing';
   wrap.id = 'typing';
-  wrap.innerHTML = `<div class="av">🤖</div><div class="mbody"><div class="bubble"><span></span><span></span><span></span></div></div>`;
+  const av = document.createElement('div');
+  av.className = 'av';
+  av.innerHTML = AI_AVATAR;
+  const body = document.createElement('div');
+  body.className = 'mbody';
+  const bub = document.createElement('div');
+  bub.className = 'bubble';
+  bub.innerHTML = '<span></span><span></span><span></span>';
+  body.appendChild(bub);
+  wrap.appendChild(av);
+  wrap.appendChild(body);
   const msgs = document.getElementById('messages');
   msgs.appendChild(wrap);
   msgs.scrollTop = msgs.scrollHeight;
@@ -362,26 +301,16 @@ function removeTyping() {
   if (t) t.remove();
 }
 async function send() {
-  const inp  = document.getElementById('inp');
+  const inp = document.getElementById('inp');
   const text = inp.value.trim();
   if (!text) return;
-
   inp.value = '';
   inp.style.height = 'auto';
   document.getElementById('sugs').style.display = 'none';
   addMsg('user', text);
   showTyping();
-
-  if (DEMO_MODE) {
-    await new Promise(r => setTimeout(r, 900 + Math.random() * 600));
-    removeTyping();
-    const d = DEMO[demoIdx++ % DEMO.length];
-    addMsg('ai', d.answer);
-    return;
-  }
-
   try {
-    const res = await fetch(BACKEND_URL, {
+    const res = await fetch(BACKEND, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question: text })
@@ -392,7 +321,7 @@ async function send() {
     addMsg('ai', data.answer);
   } catch (err) {
     removeTyping();
-    addMsg('ai', '⚠️ Kon geen verbinding maken. Probeer het opnieuw.');
+    addMsg('ai', '&#9888; Kon geen verbinding maken. Probeer het opnieuw.');
   }
 }
 </script>
