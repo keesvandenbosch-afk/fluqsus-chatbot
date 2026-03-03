@@ -4,11 +4,44 @@ const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
 });
 
-// ─────────────────────────────────────────────
-//  EIGEN DOCUMENTEN — voeg hier je teksten toe
-// ─────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────
+//  FLUQSUS WEBSITE INHOUD (opgehaald van www.fluqsus.nl)
+// ─────────────────────────────────────────────────────────────
+const FLUQSUS_INFO = `
+=== OVER FLUQSUS CONSULTANCY ===
+
+Fluqsus Consultancy wordt gerund door Kees van den Bosch.
+Hij biedt verschillende diensten om bedrijfsprocessen op het gebied
+van HRM en Payroll zo optimaal mogelijk in te richten en te beheren.
+Kees heeft meerdere jaren ervaring als AFAS business consultant en heeft
+zijn kennis bij een groot aantal bedrijven ingezet.
+
+Slogan: "Jouw processen op orde, jouw organisatie vooruit"
+
+=== DIENSTEN ===
+- Advies over huidige AFAS inrichting
+- Tijdelijke ondersteuning bij uitval
+- Digitalisering en optimalisatie van processen
+- HRM en Payroll inrichting en beheer
+- AFAS business consultancy
+
+=== CONTACT ===
+- E-mail: info@fluqsus.nl
+- Telefoon: 06-34966614
+- Adres: Leiduinstraat 6-3, 1058SJ Amsterdam
+- KVK: 99038846
+- Website: www.fluqsus.nl
+
+=== DOCUMENTEN ===
+- Algemene Voorwaarden beschikbaar op de website
+- Privacyverklaring beschikbaar op de website
+`;
+
+// ─────────────────────────────────────────────────────────────
+//  EIGEN DOCUMENTEN — voeg hier aanvullende teksten toe
+// ─────────────────────────────────────────────────────────────
 const EIGEN_DOCUMENTEN = `
-Hier kun je eigen Fluqsus-documentatie toevoegen.
+Hier kun je aanvullende Fluqsus-documentatie toevoegen.
 Bijvoorbeeld: procedures, klantspecifieke instellingen, FAQ's.
 `;
 
@@ -25,25 +58,29 @@ module.exports = async function handler(req, res) {
       model: 'claude-sonnet-4-6',
       max_tokens: 1000,
       tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-      system: `Je bent de assistent van Fluqsus Consultancy (fluqsus.nl).
-Je helpt bezoekers met twee soorten vragen:
+      system: `Je bent de assistent van Fluqsus Consultancy (www.fluqsus.nl).
+Je helpt bezoekers met vragen over Fluqsus en over AFAS software.
 
-1. VRAGEN OVER FLUQSUS (diensten, over ons, contact, werkwijze, prijzen):
-   → Zoek altijd op site:fluqsus.nl of "fluqsus.nl" om actuele informatie te vinden.
+ZOEKSTRATEGIE:
+- Vragen over Fluqsus (diensten, contact, wie is Kees, werkwijze):
+  → Gebruik eerst de meegeleverde Fluqsus-informatie hieronder.
+  → Zoek aanvullend op "fluqsus.nl" als je meer details nodig hebt.
+- Vragen over AFAS software (hoe werkt iets, instellen, menu's):
+  → Zoek op help.afas.nl voor de juiste informatie.
+- Vragen die beide betreffen:
+  → Combineer beide bronnen.
 
-2. VRAGEN OVER AFAS SOFTWARE (hoe werkt iets, waar vind ik iets, instellen):
-   → Zoek altijd op help.afas.nl voor de juiste informatie.
-
-3. VRAGEN DIE BEIDE BETREFFEN:
-   → Zoek op beide bronnen en combineer de informatie.
-
-Regels:
+REGELS:
 - Antwoord altijd in het Nederlands
 - Wees concreet en praktisch
 - Gebruik <strong>Menu → Submenu</strong> voor AFAS navigatiepaden
-- Als je iets niet kunt vinden, zeg dat eerlijk en verwijs naar info@fluqsus.nl
+- Verwijs bij contactvragen naar info@fluqsus.nl of 06-34966614
+- Als je iets niet kunt vinden, zeg dat eerlijk
 
---- Fluqsus eigen documentatie ---
+=== FLUQSUS INFORMATIE ===
+${FLUQSUS_INFO}
+
+=== EIGEN DOCUMENTATIE ===
 ${EIGEN_DOCUMENTEN}`,
       messages: [{ role: 'user', content: question.trim() }]
     });
@@ -57,8 +94,8 @@ ${EIGEN_DOCUMENTEN}`,
 
     return res.status(200).json({
       answer,
-      source: usedSearch ? 'Web zoekopdracht' : 'Eigen documentatie',
-      sources: usedSearch ? ['fluqsus.nl', 'help.afas.nl'] : ['Eigen documentatie'],
+      source: usedSearch ? 'Web zoekopdracht' : 'Fluqsus documentatie',
+      sources: usedSearch ? ['fluqsus.nl', 'help.afas.nl'] : ['Fluqsus documentatie'],
     });
 
   } catch (err) {
